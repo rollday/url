@@ -19,6 +19,7 @@
         <option value="write">写入</option>
         <option value="read">读取</option>
         <option value="delete">删除</option>
+        <option value="list">拉取所有键</option> <!-- 添加拉取操作 -->
     </select>
     <br><br>
 
@@ -43,12 +44,17 @@ document.getElementById('kvForm').addEventListener('submit', async (event) => {
     const key = document.getElementById('key').value;
     const value = document.getElementById('value').value;
 
+    // 如果操作是拉取，key 和 value 不需要传递
+    const body = action === 'list' 
+        ? JSON.stringify({ action }) // 只发送 action
+        : JSON.stringify({ action, key, value: action === 'write' ? value : undefined });
+
     const response = await fetch('https://url.rollday.site/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ action, key, value: action === 'write' ? value : undefined }),
+        body,
     });
 
     const result = await response.text(); // 处理响应
