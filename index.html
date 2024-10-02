@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1>Token Check Example</h1>
+    <div id="token-display"></div>
 
     <script>
         // 获取cookie的值
@@ -30,7 +31,7 @@
                 console.log('Token not found, fetching new token...');
                 fetchToken();
             } else {
-                console.log('Token found:', token);
+                displayToken(token);
             }
         }
 
@@ -52,13 +53,27 @@
 
                     // 将token存储在cookie中，有效期为6小时
                     setCookie('token', token, 6);
-                    console.log('Token stored in cookie.');
+                    
+                    // 打印到屏幕上
+                    displayToken(token);
                 } else {
-                    console.error('Failed to fetch token.');
+                    displayError('Failed to fetch token.');
                 }
             } catch (error) {
-                console.error('Error fetching token:', error);
+                displayError('Error fetching token: ' + error.message);
             }
+        }
+
+        // 将token打印到屏幕上
+        function displayToken(token) {
+            const tokenDisplay = document.getElementById('token-display');
+            tokenDisplay.textContent = 'Token: ' + token;
+        }
+
+        // 打印错误信息
+        function displayError(message) {
+            const tokenDisplay = document.getElementById('token-display');
+            tokenDisplay.textContent = 'Error: ' + message;
         }
 
         // 页面加载时检查token
