@@ -1,66 +1,76 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>KV 操作</title>
     <style>
-        body { font-family: Arial, sans-serif; }
-        .result { margin-top: 20px; }
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .result {
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
 
-<h1>Cloudflare Workers KV 操作</h1>
+    <h1>Cloudflare Workers KV 操作</h1>
 
-<form id="kvForm">
-    <label for="action">操作:</label>
-    <select id="action" required>
-        <option value="write">写入</option>
-        <option value="read">读取</option>
-        <option value="delete">删除</option>
-        <option value="list">拉取所有键</option> <!-- 添加拉取操作 -->
-    </select>
-    <br><br>
+    <form id="kvForm">
+        <label for="action">操作:</label>
+        <select id="action" required>
+            <option value="write">写入</option>
+            <option value="read">读取</option>
+            <option value="delete">删除</option>
+            <option value="list">拉取所有键</option>
+            <option value="list_name">拉取所有键名</option> <!-- 添加拉取操作 -->
+        </select>
+        <br><br>
 
-    <label for="key">Key:</label>
-    <input type="text" id="key" required>
-    <br><br>
+        <label for="key">Key:</label>
+        <input type="text" id="key" required>
+        <br><br>
 
-    <label for="value">Value:</label>
-    <input type="text" id="value">
-    <br><br>
+        <label for="value">Value:</label>
+        <input type="text" id="value">
+        <br><br>
 
-    <button type="submit">提交</button>
-</form>
+        <button type="submit">提交</button>
+    </form>
 
-<div class="result" id="result"></div>
+    <div class="result" id="result"></div>
 
-<script>
-document.getElementById('kvForm').addEventListener('submit', async (event) => {
-    event.preventDefault(); // 阻止表单提交的默认行为
+    <script>
+        document.getElementById('kvForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // 阻止表单提交的默认行为
 
-    const action = document.getElementById('action').value;
-    const key = document.getElementById('key').value;
-    const value = document.getElementById('value').value;
+            const action = document.getElementById('action').value;
+            const key = document.getElementById('key').value;
+            const value = document.getElementById('value').value;
 
-    // 如果操作是拉取，key 和 value 不需要传递
-    const body = action === 'list' 
-        ? JSON.stringify({ action }) // 只发送 action
-        : JSON.stringify({ action, key, value: action === 'write' ? value : undefined });
+            // 如果操作是拉取，key 和 value 不需要传递
+            const body = (action === 'list' || action === 'list_name')
+                ? JSON.stringify({ action }) // 只发送 action
+                : JSON.stringify({action,key,...(action === 'write' ? { value } : {})
+                });
 
-    const response = await fetch('https://url.rollday.site/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body,
-    });
+            const response = await fetch('https://url.rollday.site/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body,
+            });
 
-    const result = await response.text(); // 处理响应
-    document.getElementById('result').innerText = result; // 显示结果
-});
-</script>
+            const result = await response.text(); // 处理响应
+            document.getElementById('result').innerText = result; // 显示结果
+        });
+    </script>
 
 </body>
+
 </html>
