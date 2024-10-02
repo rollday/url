@@ -1,78 +1,68 @@
 <!DOCTYPE html>
-<html lang="zh">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KV 操作</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-
-        .result {
-            margin-top: 20px;
-        }
-    </style>
+    <title>Token Check</title>
 </head>
-
 <body>
-
-    <h1>Cloudflare Workers KV 操作</h1>
-
-    <form id="kvForm">
-        <label for="action">操作:</label>
-        <select id="action" required>
-            <option value="write">写入</option>
-            <option value="read">读取</option>
-            <option value="delete">删除</option>
-            <option value="list">拉取所有键</option>
-            <option value="list_name">拉取所有键名</option> <!-- 添加拉取操作 -->
-        </select>
-        <br><br>
-
-        <label for="key">Key:</label>
-        <input type="text" id="key" required>
-        <br><br>
-
-        <label for="value">Value:</label>
-        <input type="text" id="value">
-        <br><br>
-
-        <button type="submit">提交</button>
-    </form>
-
-    <div class="result" id="results"></div>
+    <h1>Token Check Example</h1>
 
     <script>
-        document.getElementById('kvForm').addEventListener('submit', async (event) => {
-            event.preventDefault(); // 阻止表单提交的默认行为
+        // 获取cookie的值
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
 
-            const action = document.getElementById('action').value;
-            const key = document.getElementById('key').value;
-            const value = document.getElementById('value').value;
+        // 设置cookie的值
+        function setCookie(name, value, hours) {
+            const date = new Date();
+            date.setTime(date.getTime() + (hours * 60 * 60 * 1000)); // 设置有效期为X小时
+            document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+        }
 
-            // 如果操作是拉取，key 和 value 不需要传递
-            const body = (action === 'list' || action === 'list_name')
-                ? JSON.stringify({ action }) // 只发送 action
-                : JSON.stringify({
-                    action, key, ...(action === 'write' ? { value } : {})
+        // 检查是否已有token
+        function checkToken() {
+            const token = getCookie('token');
+            if (!token) {
+                console.log('Token not found, fetching new token...');
+                fetchToken();
+            } else {
+                console.log('Token found:', token);
+            }
+        }
+
+        // 发送请求获取token
+        async function fetchToken() {
+            try {
+                const response = await fetch('https://auth.rollday.site/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ action: 'encrypt' })
                 });
 
-            const response = await fetch('https://url.rollday.site/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body,
-            });
+                if (response.ok) {
+                    const data = await response.json();
+                    const token = data.token;
+                    console.log('Fetched token:', token);
 
-            const result = await response.text(); // 处理响应
-            document.getElementById('results').innerText = result; // 显示结果
-        });
+                    // 将token存储在cookie中，有效期为6小时
+                    setCookie('token', token, 6);
+                    console.log('Token stored in cookie.');
+                } else {
+                    console.error('Failed to fetch token.');
+                }
+            } catch (error) {
+                console.error('Error fetching token:', error);
+            }
+        }
+
+        // 页面加载时检查token
+        window.onload = checkToken;
     </script>
-
-
 </body>
-
 </html>
