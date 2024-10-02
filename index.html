@@ -72,75 +72,7 @@
         });
     </script>
 
-    <h1>Token Encryptor</h1>
-    <form id="encryptForm">
-        <button type="submit">生成通行令牌</button>
-    </form>
-    <h2>响应结果:</h2>
-    <pre id="result"></pre>
 
-    <script>
-        document.getElementById('encryptForm').addEventListener('submit', async (event) => {
-            event.preventDefault(); // 防止表单提交
-
-            const responseElement = document.getElementById('result');
-            responseElement.textContent = '处理中...';
-
-            try {
-                const response = await fetch('https://auth.rollday.site/', { // 替换为你的 Workers URL
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ action: 'encrypt' }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                responseElement.textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                responseElement.textContent = `错误: ${error.message}`;
-            }
-        });
-    </script>
-
-    <h1>Token cryptor</h1>
-    <form id="cryptForm">
-        <button type="submit">生成通行令牌</button>
-    </form>
-    <h2>响应结果:</h2>
-    <pre id="resultt"></pre>
-
-    <script>
-        document.getElementById('cryptForm').addEventListener('submit', async (event) => {
-            event.preventDefault(); // 防止表单提交
-
-            const responseElement = document.getElementById('resultt');
-            responseElement.textContent = '处理中...';
-
-            try {
-                const response = await fetch('https://auth.rollday.site/', { // 替换为你的 Workers URL
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ action: 'decrypt',raw: 'GUwsyh81j3HytAlTs2/+N8fKcBBt+bCnfqmLCX8xPJ8R6OjTxWOkyu2TLn6vq5v0zukUCDU=' }),
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const data = await response.json();
-                responseElement.textContent = JSON.stringify(data, null, 2);
-            } catch (error) {
-                responseElement.textContent = `错误: ${error.message}`;
-            }
-        });
-    </script>
 </body>
 
 </html>
