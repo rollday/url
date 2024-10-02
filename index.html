@@ -73,17 +73,57 @@
     </script>
     <h1>Token Encryptor</h1>
     <form id="encryptForm">
-        <button type="submit">生成通行令牌</button>
+        <label for="action">选择操作:</label>
+        <select id="action" name="action">
+            <option value="encrypt">生成通行令牌</option>
+            <option value="decrypt">解密通行令牌</option>
+        </select>
+
+        <div id="encryptFields">
+            <button type="submit">生成通行令牌</button>
+        </div>
+
+        <div id="decryptFields" style="display: none;">
+            <label for="raw">输入要解密的内容:</label>
+            <input type="text" id="raw" name="raw" required>
+            <button type="submit">解密通行令牌</button>
+        </div>
     </form>
+
     <h2>响应结果:</h2>
     <pre id="result"></pre>
 
     <script>
-        document.getElementById('encryptForm').addEventListener('submit', async (event) => {
+        const form = document.getElementById('encryptForm');
+        const actionSelect = document.getElementById('action');
+        const encryptFields = document.getElementById('encryptFields');
+        const decryptFields = document.getElementById('decryptFields');
+
+        actionSelect.addEventListener('change', () => {
+            if (actionSelect.value === 'encrypt') {
+                encryptFields.style.display = 'block';
+                decryptFields.style.display = 'none';
+            } else {
+                encryptFields.style.display = 'none';
+                decryptFields.style.display = 'block';
+            }
+        });
+
+        form.addEventListener('submit', async (event) => {
             event.preventDefault(); // 防止表单提交
 
             const responseElement = document.getElementById('result');
             responseElement.textContent = '处理中...';
+
+            const action = actionSelect.value;
+            let body;
+
+            if (action === 'encrypt') {
+                body = JSON.stringify({ action: 'encrypt' });
+            } else {
+                const rawInput = document.getElementById('raw').value;
+                body = JSON.stringify({ action: 'decrypt', raw: rawInput });
+            }
 
             try {
                 const response = await fetch('https://auth.rollday.site/', { // 替换为你的 Workers URL
@@ -91,7 +131,7 @@
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ action: 'encrypt' }),
+                    body: body,
                 });
 
                 if (!response.ok) {
@@ -104,6 +144,10 @@
                 responseElement.textContent = `错误: ${error.message}`;
             }
         });
+
+        // 初始显示状态
+        encryptFields.style.display = 'block';
+        decryptFields.style.display = 'none';
     </script>
 </body>
 
