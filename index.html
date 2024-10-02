@@ -71,6 +71,7 @@
             document.getElementById('results').innerText = result; // 显示结果
         });
     </script>
+
     <h1>Token Encryptor</h1>
     <form id="encryptForm">
         <button type="submit">生成通行令牌</button>
@@ -92,6 +93,41 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ action: 'encrypt' }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                responseElement.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                responseElement.textContent = `错误: ${error.message}`;
+            }
+        });
+    </script>
+
+    <h1>Token cryptor</h1>
+    <form id="cryptForm">
+        <button type="submit">生成通行令牌</button>
+    </form>
+    <h2>响应结果:</h2>
+    <pre id="resultt"></pre>
+
+    <script>
+        document.getElementById('cryptForm').addEventListener('submit', async (event) => {
+            event.preventDefault(); // 防止表单提交
+
+            const responseElement = document.getElementById('resultt');
+            responseElement.textContent = '处理中...';
+
+            try {
+                const response = await fetch('https://auth.rollday.site/', { // 替换为你的 Workers URL
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ action: 'decrypt',raw: 'gNn7L7F2sGVkAgG9xiZi5Owz464flHmKFz0Pt2u4YxW8E22YNrp9bzCuLNXp2tL8BFC+zYw=' }),
                 });
 
                 if (!response.ok) {
